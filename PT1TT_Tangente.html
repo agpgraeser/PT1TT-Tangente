@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>PTn-Parameter Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f5;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            height: 100vh;
+        }
+
+        .left-panel {
+            background: #ffffff;
+            padding: 16px 20px;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            background: #fafafa;
+            overflow: hidden;
+        }
+
+        #plotArea {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        .panel-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .left-panel .field-row-compact {
+            display: grid;
+            grid-template-columns: auto 80px auto 80px auto 80px;
+            column-gap: 4px;
+            row-gap: 4px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .left-panel .field-row-single {
+            display: grid;
+            grid-template-columns: auto 80px;
+            column-gap: 4px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .left-panel .field-row-compact label,
+        .left-panel .field-row-single label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .left-panel .field-row-compact input,
+        .left-panel .field-row-single input {
+            width: 80px;
+            padding: 4px 6px;
+            font-size: 0.85rem;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            text-align: right;
+            box-sizing: border-box;
+        }
+
+        .left-panel input.output {
+            background: #e5f7e5;
+            border: 1px solid #b2d8b2;
+        }
+
+        .invalid {
+            background: #ffcccc !important;
+            border-color: #ff4444 !important;
+        }
+
+        
+
+    </style>
+</head>
+
+<body>
+
+
+<div class="app-container">
+
+    <!-- Linkes Drittel -->
+    <div class="left-panel">
+
+        <!-- PT1TT-Parameter -->
+        <div class="section">
+            <div class="panel-title">PT1TT-Parameter berechnen</div>
+
+            <div class="field-row-compact">
+                <label for="XA">XA</label>
+                <input type="number" id="XA" value="0.00" step="0.01">
+                <label for="XE">XE</label>
+                <input type="number" id="XE" value="1.00" step="0.01">
+                <label for="DX">DX</label>
+                <input type="number" id="DX" class="output" value="1.00" readonly>
+            </div>
+
+            <div class="field-row-compact">
+                <label for="YA">YA</label>
+                <input type="number" id="YA" value="0.00" step="0.01">
+
+                <label for="YE">YE</label>
+                <input type="number" id="YE" value="1.00" step="0.01">
+
+                <label for="DY">DY</label>
+                <input type="number" id="DY" class="output" value="1.00" readonly>
+
+            </div>
+
+            <div class="field-row-single">
+                <label for="t0">t₀</label>
+                <input type="number" id="t0" value="-100.0" step="0.1">
+            </div>
+        </div>
+
+        <!-- ZPK / 3-Punkt Methode -->
+        <div class="section">
+            <div class="panel-title">ZPK / 3-Punkt Methode</div>
+
+            <div class="field-row-compact">
+                <label for="X10">X10</label>
+                <input type="number" id="X10" class="output" value="0.00" readonly>
+                <label for="t10">t10</label>
+                <input type="number" id="t10" value="0.00" step="0.01">
+                <div></div><div></div>
+            </div>
+
+            <div class="field-row-compact">
+                <label for="X50">X50</label>
+                <input type="number" id="X50" class="output" value="0.00" readonly>
+                <label for="t50">t50</label>
+                <input type="number" id="t50" value="0.00" step="0.01">
+                <div></div><div></div>
+            </div>
+
+            <div class="field-row-compact">
+                <label for="X90">X90</label>
+                <input type="number" id="X90" class="output" value="0.00" readonly>
+                <label for="t90">t90</label>
+                <input type="number" id="t90" value="0.00" step="0.01">
+                <div></div><div></div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="panel-title">Berechnete Kennwerte</div>
+
+            <div class="field-row-compact">
+                <label for="kS">kS</label>
+                <input type="number" id="kS" class="output" readonly>
+
+                <label for="TT">TT</label>
+                <input type="number" id="TT" class="output" readonly>
+
+                <label for="TG">TG</label>
+                <input type="number" id="TG" class="output" readonly>
+            </div>
+        </div>
+
+        
+
+        <div class="section">
+            <div class="panel-title">Messdaten laden</div>
+
+            <input type="file" id="excelFile" accept=".xlsx,.xls" />
+            <div id="fileInfo" style="font-size:0.8rem; color:#555; margin-top:6px;"></div>
+        </div>
+
+        <!-- Weitere Einstellungen -->
+        <div class="section">
+            <div class="panel-title">Weitere Einstellungen (Platzhalter)</div>
+            <div id="excelPreview" style="font-size:0.85rem; color:#333; margin-top:8px;"></div>
+        </div>
+    </div> <!-- Ende left-panel -->
+
+    <!-- Rechtes Zweidrittel -->
+    <div class="right-panel">
+    <div id="plotArea" style="width:100%; height:100%;"></div>
+
+    </div>
+
+
+
+
+</div>
+<!-- ========================= -->
+<!-- 1) Externe Bibliotheken -->
+<!-- ========================= -->
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+console.log("JS geladen");
+/* ---------------------------------------------------------
+   Globale Variablen
+--------------------------------------------------------- */
+let loadedFilename = "";
+
+
+/* ---------------------------------------------------------
+   DOM-Referenzen
+--------------------------------------------------------- */
+const XA = document.getElementById("XA");
+const XE = document.getElementById("XE");
+const DX = document.getElementById("DX");
+
+const YA = document.getElementById("YA");
+const YE = document.getElementById("YE");
+const DY = document.getElementById("DY");
+
+
+const t0  = document.getElementById("t0");
+const t10 = document.getElementById("t10");
+const t50 = document.getElementById("t50");
+const t90 = document.getElementById("t90");
+
+const X10 = document.getElementById("X10");
+const X50 = document.getElementById("X50");
+const X90 = document.getElementById("X90");
+
+const kS  = document.getElementById("kS");
+const TT  = document.getElementById("TT");
+const TG  = document.getElementById("TG");
+
+const excelInput = document.getElementById("excelFile");
+const fileInfo   = document.getElementById("fileInfo");
+
+/* ---------------------------------------------------------
+   Datencontainer für Excel
+--------------------------------------------------------- */
+let timeData = [];
+let xData = [];
+let yData = [];
+let systemName = "";
+let varNames = {};
+let units = {};
+let fileName = "";
+
+/* ---------------------------------------------------------
+   Hilfsfunktionen
+--------------------------------------------------------- */
+function isValidNumber(el) {
+    if (!el) return false;
+    const v = parseFloat(el.value);
+    return !(isNaN(v) || !isFinite(v));
+}
+
+function updateFieldStyle(el) {
+    if (!el) return;
+    if (isValidNumber(el)) el.classList.remove("invalid");
+    else el.classList.add("invalid");
+}
+
+/* ---------------------------------------------------------
+   DX = XE - XA
+--------------------------------------------------------- */
+function updateDX() {
+    updateFieldStyle(XA);
+    updateFieldStyle(XE);
+
+    if (isValidNumber(XA) && isValidNumber(XE)) {
+        const xa = parseFloat(XA.value);
+        const xe = parseFloat(XE.value);
+        DX.value = (xe - xa).toFixed(2);
+        updateXvalues();
+    } else {
+        DX.value = "";
+        X10.value = "";
+        X50.value = "";
+        X90.value = "";
+    }
+
+    updateDerivedValues();
+}
+
+/* ---------------------------------------------------------
+   DY = YE - YA
+--------------------------------------------------------- */
+function updateDY() {
+    updateFieldStyle(YA);
+    updateFieldStyle(YE);
+
+    if (isValidNumber(YA) && isValidNumber(YE)) {
+        const ya = parseFloat(YA.value);
+        const ye = parseFloat(YE.value);
+        DY.value = (ye - ya).toFixed(2);
+    } else {
+        DY.value = "";
+    }
+
+    updateDerivedValues();
+}
+
+
+/* ---------------------------------------------------------
+   X10/X50/X90 berechnen
+--------------------------------------------------------- */
+function updateXvalues() {
+    if (!isValidNumber(XA) || !isValidNumber(DX)) {
+        X10.value = "";
+        X50.value = "";
+        X90.value = "";
+        return;
+    }
+
+    const xa = parseFloat(XA.value);
+    const dx = parseFloat(DX.value);
+
+    X10.value = (xa + 0.1 * dx).toFixed(2);
+    X50.value = (xa + 0.5 * dx).toFixed(2);
+    X90.value = (xa + 0.9 * dx).toFixed(2);
+}
+
+/* ---------------------------------------------------------
+   Zeitvalidierung
+--------------------------------------------------------- */
+function updateTimeOrder() {
+    updateFieldStyle(t0);
+    updateFieldStyle(t10);
+    updateFieldStyle(t50);
+    updateFieldStyle(t90);
+
+    if (!isValidNumber(t0) || !isValidNumber(t10) || !isValidNumber(t50) || !isValidNumber(t90))
+        return;
+
+    const t0v  = parseFloat(t0.value);
+    const t10v = parseFloat(t10.value);
+    const t50v = parseFloat(t50.value);
+    const t90v = parseFloat(t90.value);
+
+    // 🔴 Prüfung: t0 >= 0
+    if (t0v < 0) {
+        t0.classList.add("invalid");
+    }
+
+    // 🔴 Prüfung: t10 > t0
+    if (t10v <= t0v) t10.classList.add("invalid");
+
+    // 🔴 Prüfung: t50 > t0
+    if (t50v <= t0v) t50.classList.add("invalid");
+
+    // 🔴 Prüfung: t90 > t0
+    if (t90v <= t0v) t90.classList.add("invalid");
+
+    // 🔴 Prüfung: t10 < t50
+    if (!(t10v < t50v)) {
+        t10.classList.add("invalid");
+        t50.classList.add("invalid");
+    }
+
+    // 🔴 Prüfung: t50 < t90
+    if (!(t50v < t90v)) {
+        t50.classList.add("invalid");
+        t90.classList.add("invalid");
+    }
+
+    updateDerivedValues();
+}
+
+
+/* ---------------------------------------------------------
+   Relative Zeiten + kS, TT, TG
+--------------------------------------------------------- */
+function updateDerivedValues() {
+    if (!isValidNumber(t0) || !isValidNumber(t10) || !isValidNumber(t50) || !isValidNumber(t90)) {
+        kS.value = "";
+        TT.value = "";
+        TG.value = "";
+        return;
+    }
+
+    const t0v  = parseFloat(t0.value);
+    const t10v = parseFloat(t10.value);
+    const t50v = parseFloat(t50.value);
+    const t90v = parseFloat(t90.value);
+
+    const t10_rel = t10v - t0v;
+    const t50_rel = t50v - t0v;
+    const t90_rel = t90v - t0v;
+
+    if (isValidNumber(DX) && isValidNumber(DY) && parseFloat(DY.value) !== 0) {
+        kS.value = (parseFloat(DX.value) / parseFloat(DY.value)).toFixed(4);
+    } else {
+        kS.value = "";
+    }
+
+
+    TT.value = ((t10_rel - 0.046 * t90_rel) / 0.954).toFixed(3);
+    const tt = parseFloat(TT.value);
+    const t10_corr = t10_rel - tt;
+    const t50_corr = t50_rel - tt;
+    const t90_corr = t90_rel - tt;
+    TG.value = ((9.491 * t10_corr + 1.443 * t50_corr + 0.434 * t90_corr) / 3).toFixed(3);
+}
+
+/* ---------------------------------------------------------
+   Modellantwort (PT1TT)
+--------------------------------------------------------- */
+function computeModelResponse() {
+    const XM = [];
+
+    const xa = parseFloat(XA.value);
+    const dy = parseFloat(DY.value);
+    const ks = parseFloat(kS.value);
+    const tt = parseFloat(TT.value);
+    const tg = parseFloat(TG.value);
+    const t0v = parseFloat(t0.value);
+
+    const tDelay = t0v + tt;
+
+    for (let i = 0; i < timeData.length; i++) {
+        const t = timeData[i];
+
+        if (t <= tDelay) {
+            XM.push(xa);
+        } else {
+            const exponent = -(t - tDelay) / tg;
+            XM.push(xa + ks * dy * (1 - Math.exp(exponent)));
+        }
+    }
+
+    return XM;
+}
+
+/* ---------------------------------------------------------
+   Excel einlesen
+--------------------------------------------------------- */
+excelInput.addEventListener("change", handleExcelFile);
+
+function handleExcelFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    fileName = file.name.replace(/\.[^/.]+$/, "");
+    loadedFilename = file.name;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        parseExcelStructure(rows);
+        fileInfo.innerText = "Geladen: " + file.name;
+        showFirstThreeRows(rows);
+        plotData();
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+
+/* ---------------------------------------------------------
+   Struktur A/B/C erkennen
+   und Daten in timeData, xData, yData ablegen
+--------------------------------------------------------- */
+function parseExcelStructure(rows) {
+    timeData = [];
+    xData = [];   // 
+    yData = [];   // 
+
+    const first = rows[0];
+    const second = rows[1];
+    const third = rows[2];
+
+    // Struktur C: 3 Kopfzeilen (Name, Variablen, Einheiten)
+    const isC =
+        first && typeof first[0] === "string" &&
+        second && typeof second[0] === "string" &&
+        third;
+
+    if (isC) {
+        systemName = first[0];
+
+        varNames.time = second[0] || "Zeit";
+        varNames.x    = second[1] || "X";   // Ausgang
+        varNames.y    = second[2] || "Y";   // Eingang
+
+        units.time = third[0] || "";
+        units.x    = third[1] || "";
+        units.y    = third[2] || "";
+
+        for (let i = 3; i < rows.length; i++) {
+            const r = rows[i];
+            if (!r || r.length < 2) continue;
+
+            timeData.push(r[0]);
+            xData.push(r[1]);       // Ausgang
+            if (r.length >= 3) yData.push(r[2]);  // Eingang
+        }
+        return;
+    }
+
+    /* ---------------------------------------------------------
+       Struktur A/B: 1 Kopfzeile oder keine
+       Spalten: Zeit | X | Y?
+    --------------------------------------------------------- */
+    const hasY = rows[0] && rows[0].length >= 3;
+
+    for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r || r.length < 2) continue;
+
+        timeData.push(r[0]);
+        xData.push(r[1]);          // Ausgang
+        if (hasY) yData.push(r[2]); // Eingang
+    }
+
+    systemName = fileName;
+
+    varNames = {
+        time: "Zeit",
+        x: "X",
+        y: hasY ? "Y" : null
+    };
+
+    units = {
+        time: "",
+        x: "",
+        y: ""
+    };
+}
+
+/* ---------------------------------------------------------
+   Show first three rows of the raw Excel input in the UI
+--------------------------------------------------------- */
+function showFirstThreeRows(rows) {
+    const preview = document.getElementById("excelPreview");
+    if (!preview) return;
+
+    const firstRows = (rows || []).slice(0, 3);
+    if (firstRows.length === 0) {
+        preview.innerText = "Keine Vorschau verfügbar.";
+        return;
+    }
+
+    let html = '<table style="border-collapse:collapse; width:100%;">';
+    for (let r = 0; r < firstRows.length; r++) {
+        const row = firstRows[r] || [];
+        html += '<tr>';
+        for (let c = 0; c < row.length; c++) {
+            const cell = row[c] !== undefined ? String(row[c]) : '';
+            html += '<td style="border:1px solid #e6e6e6; padding:6px; font-size:0.85rem;">' + cell + '</td>';
+        }
+        html += '</tr>';
+    }
+    html += '</table>';
+    preview.innerHTML = html;
+}
+
+
+/* ---------------------------------------------------------
+   Plot-Funktion
+--------------------------------------------------------- */
+function computeMinMax(arr) {
+    if (!arr || arr.length === 0) {
+        return { min: null, max: null };
+    }
+    return {
+        min: Math.min(...arr),
+        max: Math.max(...arr)
+    };
+}
+
+
+
+function plotData() {
+    if (timeData.length === 0) return;
+
+    /* ---------------------------------------------------------
+       1) Min/Max berechnen
+    --------------------------------------------------------- */
+    const timeStats = computeMinMax(timeData);
+    const xStats    = computeMinMax(xData);
+    const yStats    = computeMinMax(yData);
+
+    const tMin = timeStats.min;
+    const tMax = timeStats.max;
+    const xMin = xStats.min;
+    const xMax = xStats.max;
+    const yMin = yStats.min;
+    const yMax = yStats.max;
+
+    /* ---------------------------------------------------------
+       2) Modellantwort berechnen
+    --------------------------------------------------------- */
+    const XM = computeModelResponse();
+
+    /* ---------------------------------------------------------
+       3) Plot-Traces
+    --------------------------------------------------------- */
+    const traceX = {
+        x: timeData,
+        y: xData,
+        mode: "lines",
+        name: "Messwert X",
+        line: { width: 2, color: "blue" },
+        xaxis: "x1",
+        yaxis: "y1"
+    };
+
+    const traceY = {
+        x: timeData,
+        y: yData,
+        mode: "lines",
+        name: "Eingang Y",
+        line: { width: 2, color: "red" },
+        xaxis: "x2",
+        yaxis: "y2"
+    };
+
+    const traceModel = {
+        x: timeData,
+        y: XM,
+        mode: "lines",
+        name: "Modellantwort",
+        line: { width: 4, color: "red", dash: "dot" },
+        xaxis: "x1",
+        yaxis: "y1"
+    };
+
+    /* ---------------------------------------------------------
+       4) Parameter aus UI lesen
+    --------------------------------------------------------- */
+    const t0v  = parseFloat(t0.value);
+    const t10v = parseFloat(t10.value);
+    const t50v = parseFloat(t50.value);
+    const t90v = parseFloat(t90.value);
+
+    const X10v = parseFloat(X10.value);
+    const X50v = parseFloat(X50.value);
+    const X90v = parseFloat(X90.value);
+
+    const xa = parseFloat(XA.value);
+    const xe = parseFloat(XE.value);
+
+    /* ---------------------------------------------------------
+       5) Shapes definieren (JETZT ist tMin/tMax verfügbar!)
+    --------------------------------------------------------- */
+    const shapes = [
+
+        // vertikale Linie t0
+        {
+            type: "line",
+            x0: t0v,
+            x1: t0v,
+            y0: xe,
+            y1: xa,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "orange", width: 2, dash: "dot" }
+        },
+
+        // horizontale Linien XA / XE
+        {
+            type: "line",
+            x0: tMin,
+            x1: tMax,
+            y0: xa,
+            y1: xa,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "red", width: 2, dash: "dash" }
+        },
+        {
+            type: "line",
+            x0: tMin,
+            x1: tMax,
+            y0: xe,
+            y1: xe,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "red", width: 2, dash: "dash" }
+        },
+
+        // horizontale Linien X10 / X50 / X90
+        {
+            type: "line",
+            x0: tMin,
+            x1: t10v,
+            y0: X10v,
+            y1: X10v,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "green", width: 1, dash: "dash" }
+        },
+        {
+            type: "line",
+            x0: tMin,
+            x1: t50v,
+            y0: X50v,
+            y1: X50v,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "green", width: 1, dash: "dash" }
+        },
+        {
+            type: "line",
+            x0: tMin,
+            x1: t90v,
+            y0: X90v,
+            y1: X90v,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "green", width: 1, dash: "dash" }
+        },
+
+        // vertikale Linien t10 / t50 / t90
+        {
+            type: "line",
+            x0: t10v,
+            x1: t10v,
+            y0: xa,
+            y1: X10v,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "green", width: 1, dash: "dash" }
+        },
+        {
+            type: "line",
+            x0: t50v,
+            x1: t50v,
+            y0: xa,
+            y1: X50v,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "green", width: 1, dash: "dash" }
+        },
+        {
+            type: "line",
+            x0: t90v,
+            x1: t90v,
+            y0: xa,
+            y1: X90v,
+            xref: "x1",
+            yref: "y1",
+            line: { color: "green", width: 1, dash: "dash" }
+        }
+    ];
+
+    /* ---------------------------------------------------------
+       6) Annotations (nur oberes Diagramm)
+    --------------------------------------------------------- */
+    const annotations = [
+        {
+            x: t0v,
+            y: xa,
+            xref: "x1",
+            yref: "y1",
+            text: "t0",
+            showarrow: false,
+            yshift: -20,
+            font: { size: 12, color: "red" }
+        },
+        {
+            x: t10v,
+            y: xa,
+            xref: "x1",
+            yref: "y1",
+            text: "t10",
+            showarrow: false,
+            yshift: -20,
+            font: { size: 12, color: "blue" }
+        },
+        {
+            x: t50v,
+            y: xa,
+            xref: "x1",
+            yref: "y1",
+            text: "t50",
+            showarrow: false,
+            yshift: -20,
+            font: { size: 12, color: "blue" }
+        },
+        {
+            x: t90v,
+            y: xa,
+            xref: "x1",
+            yref: "y1",
+            text: "t90",
+            showarrow: false,
+            yshift: -20,
+            font: { size: 12, color: "blue" }
+        }
+    ];
+
+    /* ---------------------------------------------------------
+       7) Plot erzeugen (Subplots)
+    --------------------------------------------------------- */
+    Plotly.newPlot("plotArea", [traceX, traceY, traceModel], {
+
+    title: {
+        text: loadedFilename ? ("Datei: " + loadedFilename) : "PT1TT – Zeitverläufe",
+        y: 0.95,
+        pad: { t: 10 }
+    },
+
+    grid: {
+        rows: 2,
+        columns: 1,
+        roworder: "top to bottom",
+        heights: [0.67, 0.33],
+        pattern: "independent",
+        ygap: 0.02
+    },
+
+    // oberes Diagramm
+    xaxis:  { title: "Zeit" },
+    yaxis:  { title: "x(t)" },
+
+    // unteres Diagramm
+    xaxis2: { title: "Zeit" },
+    yaxis2: { title: "y(t)" },
+
+    shapes: shapes,
+    annotations: annotations,
+
+    margin: { t: 60, r: 20, b: 40, l: 50 }
+});
+}
+
+
+/* ---------------------------------------------------------
+   Event‑Listener
+--------------------------------------------------------- */
+XA.addEventListener("input", () => { updateDX(); plotData(); });
+XE.addEventListener("input", () => { updateDX(); plotData(); });
+
+YA.addEventListener("input", () => { updateDY(); plotData(); });
+YE.addEventListener("input", () => { updateDY(); plotData(); });
+
+
+t0.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+t10.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+t50.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+t90.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+
+/* ---------------------------------------------------------
+   Initiale Berechnung + Plot
+--------------------------------------------------------- */
+updateDX();
+updateDY();
+updateXvalues();
+updateTimeOrder();
+updateDerivedValues();
+plotData();
+
+</script>
+
+
+
+</body>
+</html>
