@@ -147,9 +147,9 @@
             </div>
         </div>
 
-        <!-- Tangenten Methode -->
+        <!-- Wendetangenten Methode -->
         <div class="section">
-            <div class="panel-title">Tangenten Methode</div>
+            <div class="panel-title">Wendetangenten Methode für Mehrspeichersysteme</div>
 
             <div class="field-row-compact">
                 <label for="X1">X1 </label>
@@ -173,8 +173,8 @@
             </div>
 
             <div class="field-row-compact">
-                <label for="x2">x2</label>
-                <input type="number" id="x2" value="0.00" step="0.01">
+                <label for="X2">X2</label>
+                <input type="number" id="X2" value="0.00" step="0.01">
 
                 <label for="t2">t2</label>
                 <input type="number" id="t2" value="0.00" step="0.01">
@@ -250,13 +250,13 @@ const DY = document.getElementById("DY");
 
 
 const t0  = document.getElementById("t0");
-const t10 = document.getElementById("t10");
-const t50 = document.getElementById("t50");
-const t90 = document.getElementById("t90");
+const t10 = document.getElementById("t1");
+const t50 = document.getElementById("tWP");
+const t90 = document.getElementById("t2");
 
-const X10 = document.getElementById("X10");
-const X50 = document.getElementById("X50");
-const X90 = document.getElementById("X90");
+const X10 = document.getElementById("X1");
+const X50 = document.getElementById("XWP");
+const X90 = document.getElementById("X2");
 
 const kS  = document.getElementById("kS");
 const TT  = document.getElementById("TT");
@@ -302,12 +302,12 @@ function updateDX() {
         const xa = parseFloat(XA.value);
         const xe = parseFloat(XE.value);
         DX.value = (xe - xa).toFixed(2);
-        updateXvalues();
+        //updateXvalues();//
     } else {
         DX.value = "";
-        X10.value = "";
-        X50.value = "";
-        X90.value = "";
+        X1.value = "";
+        XWP.value = "";
+        X2.value = "";
     }
 
     updateDerivedValues();
@@ -337,18 +337,18 @@ function updateDY() {
 --------------------------------------------------------- */
 function updateXvalues() {
     if (!isValidNumber(XA) || !isValidNumber(DX)) {
-        X10.value = "";
-        X50.value = "";
-        X90.value = "";
+        X1.value = "";
+        XWP.value = "";
+        X2.value = "";
         return;
     }
 
     const xa = parseFloat(XA.value);
     const dx = parseFloat(DX.value);
 
-    X10.value = (xa + 0.1 * dx).toFixed(2);
+    /*X10.value = (xa + 0.1 * dx).toFixed(2);
     X50.value = (xa + 0.5 * dx).toFixed(2);
-    X90.value = (xa + 0.9 * dx).toFixed(2);
+    X90.value = (xa + 0.9 * dx).toFixed(2);*/
 }
 
 /* ---------------------------------------------------------
@@ -356,42 +356,42 @@ function updateXvalues() {
 --------------------------------------------------------- */
 function updateTimeOrder() {
     updateFieldStyle(t0);
-    updateFieldStyle(t10);
-    updateFieldStyle(t50);
-    updateFieldStyle(t90);
+    updateFieldStyle(t1);
+    updateFieldStyle(tWP);
+    updateFieldStyle(t2);
 
-    if (!isValidNumber(t0) || !isValidNumber(t10) || !isValidNumber(t50) || !isValidNumber(t90))
+    if (!isValidNumber(t0) || !isValidNumber(t1) || !isValidNumber(tWP) || !isValidNumber(t2))
         return;
 
     const t0v  = parseFloat(t0.value);
-    const t10v = parseFloat(t10.value);
-    const t50v = parseFloat(t50.value);
-    const t90v = parseFloat(t90.value);
+    const t1v = parseFloat(t1.value);
+    const tWPv = parseFloat(tWP.value);
+    const t2v = parseFloat(t2.value);
 
     // 🔴 Prüfung: t0 >= 0
     if (t0v < 0) {
         t0.classList.add("invalid");
     }
 
-    // 🔴 Prüfung: t10 > t0
-    if (t10v <= t0v) t10.classList.add("invalid");
+    // 🔴 Prüfung: t1 > t0
+    if (t1v <= t0v) t10.classList.add("invalid");
 
-    // 🔴 Prüfung: t50 > t0
-    if (t50v <= t0v) t50.classList.add("invalid");
+    // 🔴 Prüfung: tWP > t0
+    if (tWPv <= t0v) tWP.classList.add("invalid");
 
-    // 🔴 Prüfung: t90 > t0
-    if (t90v <= t0v) t90.classList.add("invalid");
+    // 🔴 Prüfung: t2 > t0
+    if (t2v <= t0v) t2.classList.add("invalid");
 
-    // 🔴 Prüfung: t10 < t50
-    if (!(t10v < t50v)) {
-        t10.classList.add("invalid");
-        t50.classList.add("invalid");
+    // 🔴 Prüfung: t1 < tWP
+    if (!(t1v < tWPv)) {
+        t1.classList.add("invalid");
+        tWP.classList.add("invalid");
     }
 
-    // 🔴 Prüfung: t50 < t90
-    if (!(t50v < t90v)) {
-        t50.classList.add("invalid");
-        t90.classList.add("invalid");
+    // 🔴 Prüfung: tWP < t2
+    if (!(tWPv < t2v)) {
+        tWP.classList.add("invalid");
+        t2.classList.add("invalid");
     }
 
     updateDerivedValues();
@@ -410,13 +410,13 @@ function updateDerivedValues() {
     }
 
     const t0v  = parseFloat(t0.value);
-    const t10v = parseFloat(t10.value);
-    const t50v = parseFloat(t50.value);
-    const t90v = parseFloat(t90.value);
+    const t1v = parseFloat(t1.value);
+    const tWPv = parseFloat(tWP.value);
+    const t2v = parseFloat(t2.value);
 
-    const t10_rel = t10v - t0v;
-    const t50_rel = t50v - t0v;
-    const t90_rel = t90v - t0v;
+    const t1_rel = t1v - t0v;
+    const tWP_rel = tWPv - t0v;
+    const t2_rel = t2v - t0v;
 
     if (isValidNumber(DX) && isValidNumber(DY) && parseFloat(DY.value) !== 0) {
         kS.value = (parseFloat(DX.value) / parseFloat(DY.value)).toFixed(4);
@@ -425,12 +425,12 @@ function updateDerivedValues() {
     }
 
 
-    TT.value = ((t10_rel - 0.046 * t90_rel) / 0.954).toFixed(3);
+    TT.value = t1_rel ;
     const tt = parseFloat(TT.value);
-    const t10_corr = t10_rel - tt;
-    const t50_corr = t50_rel - tt;
-    const t90_corr = t90_rel - tt;
-    TG.value = ((9.491 * t10_corr + 1.443 * t50_corr + 0.434 * t90_corr) / 3).toFixed(3);
+    const t1_corr = t1_rel - tt;
+    const tWP_corr = tWP_rel - tt;
+    const t2_corr = t2_rel - tt;
+    TG.value = t2_corr-tWP_corr;
 }
 
 /* ---------------------------------------------------------
