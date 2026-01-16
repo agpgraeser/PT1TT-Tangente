@@ -183,7 +183,7 @@
             </div>
         </div>
         <div class="section">
-            <div class="panel-title">Berechnete Kennwerte</div>
+            <div class="panel-title">Kennwerte, Küpfmüller (TT, TG) & Küpfmüller korr.(TT1,TG1)</div>
 
             <div class="field-row-compact">
                 <label for="kS">kS</label>
@@ -194,6 +194,16 @@
 
                 <label for="TG">TG</label>
                 <input type="number" id="TG" class="output" readonly>
+
+                <label for="kS">kS1</label>
+                <input type="number" id="kS1" class="output" readonly>
+
+                <label for="TT1">TT1</label>
+                <input type="number" id="TT1" class="output" readonly>
+
+                <label for="TG1">TG1</label>
+                <input type="number" id="TG1" class="output" readonly>
+
             </div>
         </div>
 
@@ -250,17 +260,21 @@ const DY = document.getElementById("DY");
 
 
 const t0  = document.getElementById("t0");
-const t10 = document.getElementById("t1");
-const t50 = document.getElementById("tWP");
-const t90 = document.getElementById("t2");
+const t1 = document.getElementById("t1");
+const tWP = document.getElementById("tWP");
+const t2 = document.getElementById("t2");
 
-const X10 = document.getElementById("X1");
-const X50 = document.getElementById("XWP");
-const X90 = document.getElementById("X2");
+const X1 = document.getElementById("X1");
+const XWP = document.getElementById("XWP");
+const X2 = document.getElementById("X2");
 
 const kS  = document.getElementById("kS");
 const TT  = document.getElementById("TT");
 const TG  = document.getElementById("TG");
+
+const kS1 = document.getElementById("kS1");
+const TT1 = document.getElementById("TT1");
+const TG1 = document.getElementById("TG1");
 
 const excelInput = document.getElementById("excelFile");
 const fileInfo   = document.getElementById("fileInfo");
@@ -374,7 +388,7 @@ function updateTimeOrder() {
     }
 
     // 🔴 Prüfung: t1 > t0
-    if (t1v <= t0v) t10.classList.add("invalid");
+    if (t1v <= t0v) t1.classList.add("invalid");
 
     // 🔴 Prüfung: tWP > t0
     if (tWPv <= t0v) tWP.classList.add("invalid");
@@ -402,10 +416,13 @@ function updateTimeOrder() {
    Relative Zeiten + kS, TT, TG
 --------------------------------------------------------- */
 function updateDerivedValues() {
-    if (!isValidNumber(t0) || !isValidNumber(t10) || !isValidNumber(t50) || !isValidNumber(t90)) {
+    if (!isValidNumber(t0) || !isValidNumber(t1) || !isValidNumber(tWP) || !isValidNumber(t2)) {
         kS.value = "";
         TT.value = "";
         TG.value = "";
+        kS1.value = "";
+        TT1.value = "";
+        TG1.value = "";
         return;
     }
 
@@ -420,8 +437,10 @@ function updateDerivedValues() {
 
     if (isValidNumber(DX) && isValidNumber(DY) && parseFloat(DY.value) !== 0) {
         kS.value = (parseFloat(DX.value) / parseFloat(DY.value)).toFixed(4);
+        kS1.value = (parseFloat(DX.value) / parseFloat(DY.value)).toFixed(4);
     } else {
         kS.value = "";
+        kS1.value = "";
     }
 
 
@@ -430,7 +449,8 @@ function updateDerivedValues() {
     const t1_corr = t1_rel - tt;
     const tWP_corr = tWP_rel - tt;
     const t2_corr = t2_rel - tt;
-    TG.value = t2_corr-tWP_corr;
+    TG.value = t2_corr - t1_corr;
+    TG1.value = t2_corr - tWP_corr;
 }
 
 /* ---------------------------------------------------------
@@ -664,13 +684,13 @@ function plotData() {
        4) Parameter aus UI lesen
     --------------------------------------------------------- */
     const t0v  = parseFloat(t0.value);
-    const t10v = parseFloat(t10.value);
-    const t50v = parseFloat(t50.value);
-    const t90v = parseFloat(t90.value);
+    const t1v = parseFloat(t1.value);
+    const tWPv = parseFloat(tWP.value);
+    const t2v = parseFloat(t2.value);
 
-    const X10v = parseFloat(X10.value);
-    const X50v = parseFloat(X50.value);
-    const X90v = parseFloat(X90.value);
+    const X1v = parseFloat(X1.value);
+    const XWPv = parseFloat(XWP.value);
+    const X2v = parseFloat(X2.value);
 
     const xa = parseFloat(XA.value);
     const xe = parseFloat(XE.value);
@@ -718,9 +738,9 @@ function plotData() {
         {
             type: "line",
             x0: tMin,
-            x1: t10v,
-            y0: X10v,
-            y1: X10v,
+            x1: t1v,
+            y0: X1v,
+            y1: X1v,
             xref: "x1",
             yref: "y1",
             line: { color: "green", width: 1, dash: "dash" }
@@ -728,9 +748,9 @@ function plotData() {
         {
             type: "line",
             x0: tMin,
-            x1: t50v,
-            y0: X50v,
-            y1: X50v,
+            x1: tWPv,
+            y0: XWPv,
+            y1: XWPv,
             xref: "x1",
             yref: "y1",
             line: { color: "green", width: 1, dash: "dash" }
@@ -738,9 +758,9 @@ function plotData() {
         {
             type: "line",
             x0: tMin,
-            x1: t90v,
-            y0: X90v,
-            y1: X90v,
+            x1: t2v,
+            y0: X2v,
+            y1: X2v,
             xref: "x1",
             yref: "y1",
             line: { color: "green", width: 1, dash: "dash" }
@@ -749,30 +769,30 @@ function plotData() {
         // vertikale Linien t10 / t50 / t90
         {
             type: "line",
-            x0: t10v,
-            x1: t10v,
+            x0: t1v,
+            x1: t1v,
             y0: xa,
-            y1: X10v,
+            y1: X1v,
             xref: "x1",
             yref: "y1",
             line: { color: "green", width: 1, dash: "dash" }
         },
         {
             type: "line",
-            x0: t50v,
-            x1: t50v,
+            x0: tWPv,
+            x1: tWPv,
             y0: xa,
-            y1: X50v,
+            y1: XWPv,
             xref: "x1",
             yref: "y1",
             line: { color: "green", width: 1, dash: "dash" }
         },
         {
             type: "line",
-            x0: t90v,
-            x1: t90v,
+            x0: t2v,
+            x1: t2v,
             y0: xa,
-            y1: X90v,
+            y1: X2v,
             xref: "x1",
             yref: "y1",
             line: { color: "green", width: 1, dash: "dash" }
@@ -794,7 +814,7 @@ function plotData() {
             font: { size: 12, color: "red" }
         },
         {
-            x: t10v,
+            x: t1v,
             y: xa,
             xref: "x1",
             yref: "y1",
@@ -804,7 +824,7 @@ function plotData() {
             font: { size: 12, color: "blue" }
         },
         {
-            x: t50v,
+            x: tWPv,
             y: xa,
             xref: "x1",
             yref: "y1",
@@ -814,7 +834,7 @@ function plotData() {
             font: { size: 12, color: "blue" }
         },
         {
-            x: t90v,
+            x: t2v,
             y: xa,
             xref: "x1",
             yref: "y1",
@@ -872,9 +892,9 @@ YE.addEventListener("input", () => { updateDY(); plotData(); });
 
 
 t0.addEventListener("input", () => { updateTimeOrder(); plotData(); });
-t10.addEventListener("input", () => { updateTimeOrder(); plotData(); });
-t50.addEventListener("input", () => { updateTimeOrder(); plotData(); });
-t90.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+t1.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+tWP.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+t2.addEventListener("input", () => { updateTimeOrder(); plotData(); });
 
 /* ---------------------------------------------------------
    Initiale Berechnung + Plot
