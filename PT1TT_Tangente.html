@@ -1054,6 +1054,21 @@ if (tangentA !== null && tangentB !== null) {
     /* ---------------------------------------------------------
        7) Plot erzeugen (Subplots)
     --------------------------------------------------------- */
+    const showDiff = document.getElementById("showDiff").checked;
+
+    let traceDiff = {
+        x: excelTime,
+        y: computeDifferences(),
+        mode: "lines+markers",
+        name: "Abweichung",
+        xaxis: "x2",
+        yaxis: "y2",
+        line: { color: "red", width: 2 }
+    };
+
+    
+    
+    
     Plotly.newPlot("plotArea", [traceX, traceY, traceModel, traceModel2], {
 
     title: {
@@ -1124,6 +1139,7 @@ X2.addEventListener("input", updateXWPRange);
 
 
 //t2.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+showDiff.addEventListener("change", plotData);
 
 /* ---------------------------------------------------------
    Initiale Berechnung + Plot
