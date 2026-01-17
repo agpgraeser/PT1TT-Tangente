@@ -102,14 +102,27 @@
             width: 60px; /* anpassen nach Bedarf */
         }
 
-    
+        .file-info {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background-color: #eee;
+            color: #333;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+        .file-info.loaded {
+            background-color: #4CAF50; /* Grün */
+            color: white;
+            font-weight: bold;
+        }
+
         
 
     </style>
 </head>
 
 <body>
-
 
 <div class="app-container">
 
@@ -138,7 +151,6 @@
 
                 <label for="DY">DY</label>
                 <input type="number" id="DY" class="output" value="1.00" readonly>
-
             </div>
 
             <div class="field-row-single">
@@ -147,6 +159,7 @@
             </div>
         </div>
 
+        
         <!-- Wendetangenten Methode -->
         <div class="section">
             <div class="panel-title">Wendetangenten Methode für Mehrspeichersysteme</div>
@@ -155,12 +168,9 @@
                 <label for="X1">X1 </label>
                 <input type="number" id="X1" value="0.00" step="0.01">
 
-                <label for="t1 ">t1 </label>
+                <label for="t1">t1 </label>
                 <input type="number" id="t1" value="0.00" step="0.01">
-
-                <div></div><div></div>
             </div>
-
 
             <div class="field-row-compact">
                 <label for="XWP">XWP</label>
@@ -168,8 +178,6 @@
 
                 <label for="tWP">tWP</label>
                 <input type="number" id="tWP" value="0.00" step="0.01">
-
-                <div></div><div></div>
             </div>
 
             <div class="field-row-compact">
@@ -178,10 +186,10 @@
 
                 <label for="t2">t2</label>
                 <input type="number" id="t2" value="0.00" step="0.01">
-
-                <div></div><div></div>
             </div>
         </div>
+
+        <!-- Kennwerte -->
         <div class="section">
             <div class="panel-title">Kennwerte, Küpfmüller (TT, TG) & Küpfmüller korr.(TT1,TG1)</div>
 
@@ -195,7 +203,7 @@
                 <label for="TG">TG</label>
                 <input type="number" id="TG" class="output" readonly>
 
-                <label for="kS">kS1</label>
+                <label for="kS1">kS1</label>
                 <input type="number" id="kS1" class="output" readonly>
 
                 <label for="TT1">TT1</label>
@@ -203,17 +211,19 @@
 
                 <label for="TG1">TG1</label>
                 <input type="number" id="TG1" class="output" readonly>
-
             </div>
         </div>
-
-        
-
-        <div class="section">
+        <!-- Upload-Bereich -->
+        <div class="section" id="excel-section">
             <div class="panel-title">Messdaten laden</div>
 
-            <input type="file" id="excelFile" accept=".xlsx,.xls" />
-            <div id="fileInfo" style="font-size:0.8rem; color:#555; margin-top:6px;"></div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+                <input type="file" id="excelFile" accept=".xlsx,.xls">
+                <div id="fileInfo" 
+                     style="padding:3px 8px; border-radius:4px; background:#eee; color:#333; font-size:0.8rem;">
+                    Keine Datei
+                </div>
+            </div>
         </div>
 
         <!-- Weitere Einstellungen -->
@@ -221,18 +231,18 @@
             <div class="panel-title">Weitere Einstellungen (Platzhalter)</div>
             <div id="excelPreview" style="font-size:0.85rem; color:#333; margin-top:8px;"></div>
         </div>
+
     </div> <!-- Ende left-panel -->
 
     <!-- Rechtes Zweidrittel -->
     <div class="right-panel">
-    <div id="plotArea" style="width:100%; height:100%;"></div>
-
+        <div id="plotArea" style="width:100%; height:100%;"></div>
     </div>
 
-
-
-
 </div>
+
+</body>
+
 <!-- ========================= -->
 <!-- 1) Externe Bibliotheken -->
 <!-- ========================= -->
@@ -278,6 +288,9 @@ const TG1 = document.getElementById("TG1");
 
 const excelInput = document.getElementById("excelFile");
 const fileInfo   = document.getElementById("fileInfo");
+
+excelInput.addEventListener("change", handleExcelFile);
+
 
 /* ---------------------------------------------------------
    Datencontainer für Excel
@@ -516,11 +529,16 @@ function computeModelResponse2() {
 /* ---------------------------------------------------------
    Excel einlesen
 --------------------------------------------------------- */
-excelInput.addEventListener("change", handleExcelFile);
+ 
+
 
 function handleExcelFile(event) {
     const file = event.target.files[0];
     if (!file) return;
+
+    // Reset (optional)
+    fileInfo.innerText = "Lade...";
+    fileInfo.classList.remove("loaded");
 
     fileName = file.name.replace(/\.[^/.]+$/, "");
     loadedFilename = file.name;
@@ -534,13 +552,18 @@ function handleExcelFile(event) {
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
         parseExcelStructure(rows);
+
+        // Kompakte Anzeige + grün
         fileInfo.innerText = "Geladen: " + file.name;
+        fileInfo.classList.add("loaded");
+
         showFirstThreeRows(rows);
         plotData();
     };
 
     reader.readAsArrayBuffer(file);
 }
+
 
 /* ---------------------------------------------------------
    Struktur A/B/C erkennen
