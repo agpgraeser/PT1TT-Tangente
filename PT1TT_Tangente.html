@@ -551,6 +551,21 @@ function computeModelResponse2() {
 
     return XM2;
 }
+function computeDifferences() {
+    if (!excelTime || !excelY || excelTime.length === 0) return [];
+
+    const diffs = [];
+
+    for (let i = 0; i < excelTime.length; i++) {
+        const t = excelTime[i];
+        const yExcel = excelY[i];
+        const yModel = modelFunction(t);   // deine Modellfunktion
+
+        diffs.push(yExcel - yModel);
+    }
+
+    return diffs;
+}
 
 /* ---------------------------------------------------------
    Excel einlesen
