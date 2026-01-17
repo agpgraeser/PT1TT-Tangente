@@ -484,6 +484,34 @@ function computeModelResponse() {
 
     return XM;
 }
+/* ---------------------------------------------------------
+   Modellantwort 2 (PT1TT) mit kS1, TT1, TG1
+--------------------------------------------------------- */
+function computeModelResponse2() {
+    const XM2 = [];
+
+    const xa = parseFloat(XA.value);
+    const dy = parseFloat(DY.value);
+    const ks1 = parseFloat(kS1.value);
+    const tt1 = parseFloat(TT1.value);
+    const tg1 = parseFloat(TG1.value);
+    const t0v = parseFloat(t0.value);
+
+    const tDelay = t0v + tt1;
+
+    for (let i = 0; i < timeData.length; i++) {
+        const t = timeData[i];
+
+        if (t <= tDelay) {
+            XM2.push(xa);
+        } else {
+            const exponent = -(t - tDelay) / tg1;
+            XM2.push(xa + ks1 * dy * (1 - Math.exp(exponent)));
+        }
+    }
+
+    return XM2;
+}
 
 /* ---------------------------------------------------------
    Excel einlesen
@@ -724,10 +752,10 @@ function plotData() {
     const yMax = yStats.max;
 
     /* ---------------------------------------------------------
-       2) Modellantwort berechnen
+       2) Modellantworten berechnen
     --------------------------------------------------------- */
     const XM = computeModelResponse();
-
+    const XM2 = computeModelResponse2();
     /* ---------------------------------------------------------
        3) Plot-Traces
     --------------------------------------------------------- */
@@ -757,6 +785,15 @@ function plotData() {
         mode: "lines",
         name: "Modellantwort",
         line: { width: 4, color: "red", dash: "dot" },
+        xaxis: "x1",
+        yaxis: "y1"
+    };
+    const traceModel2 = {
+        x: timeData,
+        y: XM2,
+        mode: "lines",
+        name: "Modellantwort 2",
+        line: { width: 3, color: "purple", dash: "dashdot" },
         xaxis: "x1",
         yaxis: "y1"
     };
@@ -953,7 +990,7 @@ if (tangentA !== null && tangentB !== null) {
     /* ---------------------------------------------------------
        7) Plot erzeugen (Subplots)
     --------------------------------------------------------- */
-    Plotly.newPlot("plotArea", [traceX, traceY, traceModel], {
+    Plotly.newPlot("plotArea", [traceX, traceY, traceModel, traceModel2], {
 
     title: {
         text: loadedFilename ? ("Datei: " + loadedFilename) : "PT1TT – Zeitverläufe",
