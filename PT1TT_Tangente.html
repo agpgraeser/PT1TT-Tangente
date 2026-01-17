@@ -566,6 +566,18 @@ function computeDifferences() {
 
     return diffs;
 }
+function computeSquaredDifferences(meas, model) {
+    
+    if (!excelTime || !excelY || excelTime.length === 0) return [];
+    const diffs = [];
+    const n = Math.min(meas.length, model.length);
+    for (let i = 0; i < n; i++) {
+        const d = meas[i] - model[i];
+        diffs.push(d * d);
+    }
+    return diffs;
+}
+
 
 /* ---------------------------------------------------------
    Excel einlesen
@@ -612,9 +624,9 @@ function handleExcelFile(event) {
 --------------------------------------------------------- */
 function parseExcelStructure(rows) {
     timeData = [];
-    xData = [];   // 
-    yData = [];   // 
-
+    xData = [];   
+    yData = [];   
+   
     const first = rows[0];
     const second = rows[1];
     const third = rows[2];
@@ -820,6 +832,8 @@ function plotData() {
     --------------------------------------------------------- */
     const XM = computeModelResponse();
     const XM2 = computeModelResponse2();
+
+    const squaredDifferences = computeSquaredDifferences(xData, XM);
     /* ---------------------------------------------------------
        3) Plot-Traces
     --------------------------------------------------------- */
@@ -861,6 +875,15 @@ function plotData() {
         xaxis: "x1",
         yaxis: "y1"
     };
+    /*const traceDiff = {
+        x: timeData,
+        y: diffSquared,
+        mode: "lines+markers",
+        name: "Abweichung²",
+        xaxis: "x2",
+        yaxis: "y2",
+        line: { color: "red", width: 2 }
+    };*/
 
     /* ---------------------------------------------------------
        4) Parameter aus UI lesen
@@ -980,23 +1003,30 @@ function plotData() {
             line: { color: "green", width: 1, dash: "dash" }
         }
     ];
-// ---------------------------------------------------------
-// Tangente einzeichnen, falls vorhanden
-// ---------------------------------------------------------
+/* ---------------------------------------------------------
+   5) Werte für Annotationen vorbereiten
+--------------------------------------------------------- */
+//xa = parseFloat(XA.value);
+//xe = parseFloat(XE.value);
+
+
+// Standardwerte für t1v und t2v (falls keine Tangente aktiv)
+//let t1v = null;
+//let t2v = null;
+
+/* ---------------------------------------------------------
+   5b) Tangente einzeichnen, falls vorhanden
+--------------------------------------------------------- */
 if (tangentA !== null && tangentB !== null) {
 
-    const xa = parseFloat(XA.value);
-    const xe = parseFloat(XE.value);
-
-    // zugehörige t-Werte
-    const t1v = (xa - tangentB) / tangentA;
-    const t2v = (xe - tangentB) / tangentA;
+    const t1_tan = (xa - tangentB) / tangentA;
+    const t2_tan = (xe - tangentB) / tangentA;
 
     shapes.push({
         type: "line",
-        x0: t1v,
+        x0: t1_tan,
         y0: xa,
-        x1: t2v,
+        x1: t2_tan,
         y1: xe,
         xref: "x1",
         yref: "y1",
@@ -1004,79 +1034,100 @@ if (tangentA !== null && tangentB !== null) {
     });
 }
 
+/* ---------------------------------------------------------
+   6) Annotations (nur oberes Diagramm)
+--------------------------------------------------------- */
+const annotations = [
+    {
+        x: t0v,
+        y: xa,
+        xref: "x1",
+        yref: "y1",
+        text: "t0",
+        showarrow: false,
+        yshift: -20,
+        font: { size: 12, color: "red" }
+    },
+    {
+        x: t1v,
+        y: xa,
+        xref: "x1",
+        yref: "y1",
+        text: "t1",
+        showarrow: false,
+        yshift: -20,
+        font: { size: 12, color: "blue" }
+    },
+    {
+        x: tWPv,
+        y: xa,
+        xref: "x1",
+        yref: "y1",
+        text: "tWP",
+        showarrow: false,
+        yshift: -20,
+        font: { size: 12, color: "blue" }
+    },
+    {
+        x: t2v,
+        y: xa,
+        xref: "x1",
+        yref: "y1",
+        text: "t2",
+        showarrow: false,
+        yshift: -20,
+        font: { size: 12, color: "blue" }
+    }
+];
+    
+   /* ---------------------------------------------------------
+   7) Plot erzeugen (Subplots)
+--------------------------------------------------------- */
+const showDiffEl = document.getElementById("showDiff");
+const showDiff   = showDiffEl ? showDiffEl.checked : false;
 
-    /* ---------------------------------------------------------
-       6) Annotations (nur oberes Diagramm)
-    --------------------------------------------------------- */
-    const annotations = [
-        {
-            x: t0v,
-            y: xa,
-            xref: "x1",
-            yref: "y1",
-            text: "t0",
-            showarrow: false,
-            yshift: -20,
-            font: { size: 12, color: "red" }
-        },
-        {
-            x: t1v,
-            y: xa,
-            xref: "x1",
-            yref: "y1",
-            text: "t1",
-            showarrow: false,
-            yshift: -20,
-            font: { size: 12, color: "blue" }
-        },
-        {
-            x: tWPv,
-            y: xa,
-            xref: "x1",
-            yref: "y1",
-            text: "tWP",
-            showarrow: false,
-            yshift: -20,
-            font: { size: 12, color: "blue" }
-        },
-        {
-            x: t2v,
-            y: xa,
-            xref: "x1",
-            yref: "y1",
-            text: "t2",
-            showarrow: false,
-            yshift: -20,
-            font: { size: 12, color: "blue" }
-        }
-    ];
+// Hilfsfunktion kann auch außerhalb von plotData stehen
+function computeSquaredDifferences(meas, model) {
+    const diffs = [];
+    const n = Math.min(meas.length, model.length);
+    for (let i = 0; i < n; i++) {
+        const d = meas[i] - model[i];
+        diffs.push(d * d);
+    }
+    return diffs;
+}
 
-    /* ---------------------------------------------------------
-       7) Plot erzeugen (Subplots)
-    --------------------------------------------------------- */
-    const showDiff = document.getElementById("showDiff").checked;
+let traces;
+let y2Title;
 
-    let traceDiff = {
-        x: excelTime,
-        y: computeDifferences(),
+if (showDiff) {
+    const diffSquared = computeSquaredDifferences(xData, XM);
+
+    const traceDiff = {
+        x: timeData,
+        y: diffSquared,
         mode: "lines+markers",
-        name: "Abweichung",
+        name: "Abweichung²",
         xaxis: "x2",
         yaxis: "y2",
         line: { color: "red", width: 2 }
     };
 
-    
-    
-    
-    Plotly.newPlot("plotArea", [traceX, traceY, traceModel, traceModel2], {
+    // oben: X + Modelle, unten: Abweichung²
+    traces  = [traceX, traceModel, traceModel2, traceDiff];
+    y2Title = "Δx²(t)";
+} else {
+    // exakt dein alter Zustand: oben X + Modelle, unten Y
+    traces  = [traceX, traceModel, traceModel2, traceY];
+    y2Title = "y(t)";
+}
 
+Plotly.newPlot("plotArea", traces, {
     title: {
         text: loadedFilename ? ("Datei: " + loadedFilename) : "PT1TT – Zeitverläufe",
         y: 0.95,
         pad: { t: 10 }
     },
-
     grid: {
         rows: 2,
         columns: 1,
@@ -1085,21 +1136,17 @@ if (tangentA !== null && tangentB !== null) {
         pattern: "independent",
         ygap: 0.02
     },
-
-    // oberes Diagramm
     xaxis:  { title: "Zeit" },
     yaxis:  { title: "x(t)" },
-
-    // unteres Diagramm
     xaxis2: { title: "Zeit" },
-    yaxis2: { title: "y(t)" },
-
+    yaxis2: { title: y2Title },
     shapes: shapes,
     annotations: annotations,
-
     margin: { t: 60, r: 20, b: 40, l: 50 }
 });
 }
+
+
 
 
 /* ---------------------------------------------------------
