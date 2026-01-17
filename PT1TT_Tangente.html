@@ -445,8 +445,11 @@ function updateDerivedValues() {
 
 
     TT.value = t1_rel ;
+    TT1.value = t1_rel ;
     const tt = parseFloat(TT.value);
+    const tt1 = parseFloat(TT1.value);
     const t1_corr = t1_rel - tt;
+
     const tWP_corr = tWP_rel - tt;
     const t2_corr = t2_rel - tt;
     TG.value = t2_corr - t1_corr;
@@ -608,6 +611,81 @@ function showFirstThreeRows(rows) {
     html += '</table>';
     preview.innerHTML = html;
 }
+/* ---------------------------------------------------------
+   WP‑Tangente berechnen
+--------------------------------------------------------- */
+let tangentA = null;
+let tangentB = null;
+
+function computeXWP1(xwp, xa, xe, p = 0.05) {
+    return xwp + p * (xe - xa);
+}
+
+function findNearestPoint(xTarget) {
+    let bestIndex = -1;
+    let bestDiff = Infinity;
+
+    for (let i = 0; i < xData.length; i++) {
+        const diff = Math.abs(xData[i] - xTarget);
+        if (diff < bestDiff) {
+            bestDiff = diff;
+            bestIndex = i;
+        }
+    }
+
+    if (bestIndex < 0) return null;
+
+    return {
+        X: xData[bestIndex],
+        t: timeData[bestIndex]
+    };
+}
+
+function computeTangent(x1, t1, x2, t2) {
+    const denom = (t2 - t1);
+    if (denom === 0) return null;
+
+    tangentA = (x2 - x1) / denom;
+    tangentB = x1 - tangentA * t1;
+
+    return { a: tangentA, b: tangentB };
+}
+function tFromX(a, b, x) {
+    return (x - b) / a;
+}
+
+
+function processWP() {
+    const xwp = parseFloat(XWP.value);
+    const twp = parseFloat(tWP.value);
+    const xa  = parseFloat(XA.value);
+    const xe  = parseFloat(XE.value);
+
+    if (![xwp, twp, xa, xe].every(isFinite)) {
+        tangentA = null;
+        tangentB = null;
+        return;
+    }
+
+    const xwp1 = computeXWP1(xwp, xa, xe);
+    const pt2 = findNearestPoint(xwp1);
+    if (!pt2) {
+        tangentA = null;
+        tangentB = null;
+        return;
+    }
+
+    computeTangent(xwp, twp, pt2.X, pt2.t);
+
+    // t1 und t2 berechnen
+    const t1v = (xa - tangentB) / tangentA;
+    const t2v = (xe - tangentB) / tangentA;
+
+    // in UI schreiben
+    t1.value = t1v.toFixed(4);
+    t2.value = t2v.toFixed(4);
+}
+
 
 
 
@@ -799,6 +877,30 @@ function plotData() {
             line: { color: "green", width: 1, dash: "dash" }
         }
     ];
+// ---------------------------------------------------------
+// Tangente einzeichnen, falls vorhanden
+// ---------------------------------------------------------
+if (tangentA !== null && tangentB !== null) {
+
+    const xa = parseFloat(XA.value);
+    const xe = parseFloat(XE.value);
+
+    // zugehörige t-Werte
+    const t1v = (xa - tangentB) / tangentA;
+    const t2v = (xe - tangentB) / tangentA;
+
+    shapes.push({
+        type: "line",
+        x0: t1v,
+        y0: xa,
+        x1: t2v,
+        y1: xe,
+        xref: "x1",
+        yref: "y1",
+        line: { color: "black", width: 2 }
+    });
+}
+
 
     /* ---------------------------------------------------------
        6) Annotations (nur oberes Diagramm)
@@ -885,17 +987,36 @@ function plotData() {
 /* ---------------------------------------------------------
    Event‑Listener
 --------------------------------------------------------- */
-XA.addEventListener("input", () => { updateDX(); plotData(); });
-XE.addEventListener("input", () => { updateDX(); plotData(); });
+XA.addEventListener("input", () => { 
+    updateDX(); 
+    processWP(); 
+    plotData(); 
+});
+
+XE.addEventListener("input", () => { 
+    updateDX(); 
+    processWP(); 
+    plotData(); 
+});
+
 
 YA.addEventListener("input", () => { updateDY(); plotData(); });
 YE.addEventListener("input", () => { updateDY(); plotData(); });
 
 
 t0.addEventListener("input", () => { updateTimeOrder(); plotData(); });
-t1.addEventListener("input", () => { updateTimeOrder(); plotData(); });
-tWP.addEventListener("input", () => { updateTimeOrder(); plotData(); });
-t2.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+//t1.addEventListener("input", () => { updateTimeOrder(); plotData(); });
+tWP.addEventListener("input", () => { 
+    updateTimeOrder(); 
+    processWP(); 
+    plotData(); 
+});
+XWP.addEventListener("input", () => { 
+    processWP(); 
+    plotData(); 
+});
+
+//t2.addEventListener("input", () => { updateTimeOrder(); plotData(); });
 
 /* ---------------------------------------------------------
    Initiale Berechnung + Plot
