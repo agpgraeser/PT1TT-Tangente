@@ -448,12 +448,12 @@ function updateDerivedValues() {
     TT1.value = t1_rel.toFixed(2); ;
     const tt = parseFloat(TT.value);
     const tt1 = parseFloat(TT1.value);
-    const t1_corr = t1_rel - tt;
+    const t1_corr = (t1_rel - tt).toFixed(2);
 
-    const tWP_corr = tWP_rel - tt;
-    const t2_corr = t2_rel - tt;
-    TG.value = (t2_corr - t1_corr).toFixed(2);
-    TG1.value = (t2_corr - tWP_corr).toFixed(2);
+    const tWP_corr = (tWP_rel - tt).toFixed(2);
+    const t2_corr = (t2_rel - tt).toFixed(2);
+    TG.value = (parseFloat(t2_corr) - parseFloat(t1_corr)).toFixed(2);
+    TG1.value = (parseFloat(t2_corr) - parseFloat(tWP_corr)).toFixed(2);
 }
 
 /* ---------------------------------------------------------
