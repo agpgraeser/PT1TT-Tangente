@@ -423,6 +423,28 @@ function updateTimeOrder() {
 
     updateDerivedValues();
 }
+/* ---------------------------------------------------------
+   XWP-Bereichsprüfung
+--------------------------------------------------------- */
+function updateXWPRange() {
+    // Erst normale Zahlenvalidierung anwenden
+    updateFieldStyle(X1);
+    updateFieldStyle(XWP);
+    updateFieldStyle(X2);
+
+    // Wenn eine Zahl ungültig ist → keine Bereichsprüfung
+    if (!isValidNumber(X1) || !isValidNumber(XWP) || !isValidNumber(X2))
+        return;
+
+    const x1  = parseFloat(X1.value);
+    const xwp = parseFloat(XWP.value);
+    const x2  = parseFloat(X2.value);
+
+    // Bereichsprüfung: X1 ≤ XWP ≤ X2
+    if (xwp < x1 || xwp > x2) {
+        XWP.classList.add("invalid");
+    }
+}
 
 
 /* ---------------------------------------------------------
@@ -1074,9 +1096,13 @@ tWP.addEventListener("input", () => {
     plotData(); 
 });
 XWP.addEventListener("input", () => { 
+    updateXWPRange();
     processWP(); 
     plotData(); 
 });
+X1.addEventListener("input", updateXWPRange);
+X2.addEventListener("input", updateXWPRange);
+
 
 //t2.addEventListener("input", () => { updateTimeOrder(); plotData(); });
 
