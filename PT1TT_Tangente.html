@@ -444,16 +444,16 @@ function updateDerivedValues() {
     }
 
 
-    TT.value = t1_rel ;
-    TT1.value = t1_rel ;
+    TT.value = t1_rel.toFixed(2); ;
+    TT1.value = t1_rel.toFixed(2); ;
     const tt = parseFloat(TT.value);
     const tt1 = parseFloat(TT1.value);
     const t1_corr = t1_rel - tt;
 
     const tWP_corr = tWP_rel - tt;
     const t2_corr = t2_rel - tt;
-    TG.value = t2_corr - t1_corr;
-    TG1.value = t2_corr - tWP_corr;
+    TG.value = (t2_corr - t1_corr).toFixed(2);
+    TG1.value = (t2_corr - tWP_corr).toFixed(2);
 }
 
 /* ---------------------------------------------------------
@@ -684,6 +684,8 @@ function processWP() {
     // in UI schreiben
     t1.value = t1v.toFixed(4);
     t2.value = t2v.toFixed(4);
+    X1.value = XA.value;
+    X2.value = XE.value;
 }
 
 
