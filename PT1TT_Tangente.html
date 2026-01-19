@@ -885,7 +885,7 @@ function plotData() {
         x: timeData,
         y: XM,
         mode: "lines",
-        name: "Modellantwort",
+        name: "Modell Küpfmüller",
         line: { width: 4, color: "red", dash: "dot" },
         xaxis: "x1",
         yaxis: "y1"
@@ -894,7 +894,7 @@ function plotData() {
         x: timeData,
         y: XM2,
         mode: "lines",
-        name: "Modellantwort 2",
+        name: "Modell mod.Küpfmüller",
         line: { width: 3, color: "purple", dash: "dashdot" },
         xaxis: "x1",
         yaxis: "y1"
@@ -1130,11 +1130,11 @@ if (showDiff) {
     const traceDiff = {
         x: timeData,
         y: diffSquared,
-        mode: "lines+markers",
+        mode: "lines",
         name: "Abweichung²",
         xaxis: "x2",
         yaxis: "y2",
-        line: { color: "red", width: 2 }
+        line: { color: "red", width: 1 }
     };
 
     // oben: X + Modelle, unten: Abweichung²
