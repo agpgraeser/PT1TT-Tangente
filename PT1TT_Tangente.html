@@ -362,6 +362,17 @@ function updateDY() {
     updateDerivedValues();
 }
 
+function allInputsReady() {
+    return (
+        XA.value !== "" &&
+        XE.value !== "" &&
+        YA.value !== "" &&
+        YE.value !== "" &&
+        tWP.value !== "" &&
+        XWP.value !== ""
+    );
+}
+
 
 /* ---------------------------------------------------------
    X10/X50/X90 berechnen
@@ -455,15 +466,18 @@ function updateXWPRange() {
    Relative Zeiten + kS, TT, TG
 --------------------------------------------------------- */
 function updateDerivedValues() {
-    if (!isValidNumber(t0) || !isValidNumber(t1) || !isValidNumber(tWP) || !isValidNumber(t2)) {
-        kS.value = "";
-        TT.value = "";
-        TG.value = "";
-        kS1.value = "";
-        TT1.value = "";
-        TG1.value = "";
-        return;
-    }
+   if(!allInputsReady()) {
+    //Ergebnisse zurücksetzen
+        kS.value = ""; 
+        kS1.value = ""; 
+        TT.value = ""; 
+        TT1.value = ""; 
+        TG.value = ""; TG1.value = "";
+        return; 
+        // Berechnung abbrechen
+};
+
+
 
     const t0v  = parseFloat(t0.value);
     const t1v = parseFloat(t1.value);
@@ -598,6 +612,16 @@ function handleExcelFile(event) {
 
     const reader = new FileReader();
     reader.onload = function(e) {
+// ---------------------------------------------------------
+// Ergebnisse zurücksetzen beim Laden einer neuen Excel-Datei
+// ---------------------------------------------------------
+        document.getElementById("kS").value  = "";
+        document.getElementById("kS1").value = "";
+        document.getElementById("TT").value  = "";
+        document.getElementById("TT1").value = "";
+        document.getElementById("TG").value  = "";
+        document.getElementById("TG1").value = "";
+
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: "array" });
 
