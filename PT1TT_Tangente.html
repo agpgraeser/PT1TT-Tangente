@@ -899,15 +899,7 @@ function plotData() {
         xaxis: "x1",
         yaxis: "y1"
     };
-    /*const traceDiff = {
-        x: timeData,
-        y: diffSquared,
-        mode: "lines+markers",
-        name: "Abweichung²",
-        xaxis: "x2",
-        yaxis: "y2",
-        line: { color: "red", width: 2 }
-    };*/
+    
 
     /* ---------------------------------------------------------
        4) Parameter aus UI lesen
@@ -1126,19 +1118,31 @@ let y2Title;
 
 if (showDiff) {
     const diffSquared = computeSquaredDifferences(xData, XM);
-
+    const diffSquared2 = computeSquaredDifferences(xData, XM2);
     const traceDiff = {
-        x: timeData,
-        y: diffSquared,
-        mode: "lines",
-        name: "Abweichung²",
-        xaxis: "x2",
-        yaxis: "y2",
-        line: { color: "red", width: 1 }
-    };
+    x: timeData,
+    y: diffSquared,
+    mode: "lines",
+    name: "Abweichung² Modell 1",
+    xaxis: "x2",
+    yaxis: "y2",
+    line: { color: "red", width: 2 }
+};
+
+const traceDiff2 = {
+    x: timeData,
+    y: diffSquared2,
+    mode: "lines",
+    name: "Abweichung² Modell 2",
+    xaxis: "x2",
+    yaxis: "y2",
+    line: { color: "purple", width: 2, dash: "dot" }
+};
+
 
     // oben: X + Modelle, unten: Abweichung²
-    traces  = [traceX, traceModel, traceModel2, traceDiff];
+    traces = [traceX, traceModel, traceModel2, traceDiff, traceDiff2];
+
     y2Title = "Δx²(t)";
 } else {
     // exakt dein alter Zustand: oben X + Modelle, unten Y
