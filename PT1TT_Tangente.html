@@ -621,6 +621,8 @@ function handleExcelFile(event) {
         document.getElementById("TT1").value = "";
         document.getElementById("TG").value  = "";
         document.getElementById("TG1").value = "";
+        document.getElementById("XWP").value = "";
+        document.getElementById("tWP").value = "";
 
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: "array" });
