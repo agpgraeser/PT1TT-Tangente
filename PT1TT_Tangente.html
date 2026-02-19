@@ -125,13 +125,6 @@
 <body>
 
 
-    <label>
-        <input type="checkbox" id="showDiff" checked>
-        Abweichung² anzeigen
-    </label>
-
-    
-
 <div class="app-container">
 
     <!-- Linkes Drittel -->
@@ -235,7 +228,7 @@
         </div>
     <div class="field-row-single">
         <label for="showDiff">Abweichungen anzeigen</label>
-        <input type="checkbox" id="showDiff">
+        <input type="checkbox" id="showDiff" checked>
     </div>
    
         <!-- Weitere Einstellungen -->
@@ -298,8 +291,9 @@ const kS1 = document.getElementById("kS1");
 const TT1 = document.getElementById("TT1");
 const TG1 = document.getElementById("TG1");
 
-const excelInput = document.getElementById("excelFile");
-const fileInfo   = document.getElementById("fileInfo");
+const excelInput    = document.getElementById("excelFile");
+const fileInfo      = document.getElementById("fileInfo");
+const showDiffEl    = document.getElementById("showDiff");
 
 excelInput.addEventListener("change", handleExcelFile);
 
@@ -383,22 +377,10 @@ function allInputsReady() {
 
 
 /* ---------------------------------------------------------
-   X1/XWP/X2 berechnen
+   X1/XWP/X2 berechnen (Werte werden durch processWP gesetzt)
 --------------------------------------------------------- */
 function updateXvalues() {
-    if (!isValidNumber(XA) || !isValidNumber(DX)) {
-        X1.value = "";
-        XWP.value = "";
-        X2.value = "";
-        return;
-    }
-
-    const xa = parseFloat(XA.value);
-    const dx = parseFloat(DX.value);
-
-    /*X10.value = (xa + 0.1 * dx).toFixed(2);
-    X50.value = (xa + 0.5 * dx).toFixed(2);
-    X90.value = (xa + 0.9 * dx).toFixed(2);*/
+    // Werte werden durch processWP() gesetzt, wenn XWP/tWP eingegeben werden
 }
 
 /* ---------------------------------------------------------
@@ -417,11 +399,6 @@ function updateTimeOrder() {
     const t1v = parseFloat(t1.value);
     const tWPv = parseFloat(tWP.value);
     const t2v = parseFloat(t2.value);
-
-    // 🔴 Prüfung: t0 >= 0
-    if (t0v < 0) {
-        t0.classList.add("invalid");
-    }
 
     // 🔴 Prüfung: t1 > t0
     if (t1v <= t0v) t1.classList.add("invalid");
@@ -573,24 +550,7 @@ function computeModelResponse2() {
 
     return XM2;
 }
-function computeDifferences() {
-    if (!excelTime || !excelY || excelTime.length === 0) return [];
-
-    const diffs = [];
-
-    for (let i = 0; i < excelTime.length; i++) {
-        const t = excelTime[i];
-        const yExcel = excelY[i];
-        const yModel = modelFunction(t);   // deine Modellfunktion
-
-        diffs.push(yExcel - yModel);
-    }
-
-    return diffs;
-}
 function computeSquaredDifferences(meas, model) {
-    
-    if (!excelTime || !excelY || excelTime.length === 0) return [];
     const diffs = [];
     const n = Math.min(meas.length, model.length);
     for (let i = 0; i < n; i++) {
@@ -1109,19 +1069,7 @@ const annotations = [
    /* ---------------------------------------------------------
    7) Plot erzeugen (Subplots)
 --------------------------------------------------------- */
-const showDiffEl = document.getElementById("showDiff");
-const showDiff   = showDiffEl ? showDiffEl.checked : false;
-
-// Hilfsfunktion kann auch außerhalb von plotData stehen
-function computeSquaredDifferences(meas, model) {
-    const diffs = [];
-    const n = Math.min(meas.length, model.length);
-    for (let i = 0; i < n; i++) {
-        const d = meas[i] - model[i];
-        diffs.push(d * d);
-    }
-    return diffs;
-}
+const showDiff = showDiffEl ? showDiffEl.checked : false;
 
 let traces;
 let y2Title;
@@ -1224,7 +1172,7 @@ X2.addEventListener("input", updateXWPRange);
 
 
 //t2.addEventListener("input", () => { updateTimeOrder(); plotData(); });
-showDiff.addEventListener("change", plotData);
+showDiffEl.addEventListener("change", plotData);
 
 /* ---------------------------------------------------------
    Initiale Berechnung + Plot
