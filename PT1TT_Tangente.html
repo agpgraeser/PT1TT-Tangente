@@ -124,6 +124,14 @@
 
 <body>
 
+
+    <label>
+        <input type="checkbox" id="showDiff" checked>
+        Abweichung² anzeigen
+    </label>
+
+    
+
 <div class="app-container">
 
     <!-- Linkes Drittel -->
@@ -333,7 +341,7 @@ function updateDX() {
         const xa = parseFloat(XA.value);
         const xe = parseFloat(XE.value);
         DX.value = (xe - xa).toFixed(2);
-        //updateXvalues();//
+        //updateXvalues();
     } else {
         DX.value = "";
         X1.value = "";
@@ -375,7 +383,7 @@ function allInputsReady() {
 
 
 /* ---------------------------------------------------------
-   X10/X50/X90 berechnen
+   X1/XWP/X2 berechnen
 --------------------------------------------------------- */
 function updateXvalues() {
     if (!isValidNumber(XA) || !isValidNumber(DX)) {
