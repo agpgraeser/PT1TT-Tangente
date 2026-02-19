@@ -1,0 +1,103 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f5f5;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  height: 100vh;
+}
+
+/* ── Left panel ─────────────────────────────────── */
+.left-panel {
+  background: #ffffff;
+  padding: 16px 20px;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+}
+
+/* ── Right panel ────────────────────────────────── */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+/* ── Sections ───────────────────────────────────── */
+.section {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.panel-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* ── Grid rows ──────────────────────────────────── */
+.field-row-compact {
+  display: grid;
+  grid-template-columns: auto 80px auto 80px auto 80px;
+  column-gap: 4px;
+  row-gap: 4px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.field-row-double {
+  display: grid;
+  grid-template-columns: auto 80px auto 80px;
+  column-gap: 4px;
+  row-gap: 4px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.field-row-single {
+  display: grid;
+  grid-template-columns: auto 80px;
+  column-gap: 4px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* ── Labels ─────────────────────────────────────── */
+.left-panel label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* ── Inputs ─────────────────────────────────────── */
+.left-panel input[type="number"] {
+  width: 80px;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  text-align: right;
+}
+
+.left-panel input[type="checkbox"] {
+  width: auto;
+}
+
+input.output {
+  background: #e5f7e5;
+  border: 1px solid #b2d8b2 !important;
+}
+
+input.invalid {
+  background: #ffcccc !important;
+  border-color: #ff4444 !important;
+}
